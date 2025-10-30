@@ -1,0 +1,11 @@
+services:
+  media-bubbles-bsky:
+    build:
+      context: ./
+    env_file:
+      - path: ./.env
+        required: true
+      - path: ./.env.development
+        required: true
+      - path: ./.env.local
+        required: false

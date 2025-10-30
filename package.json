@@ -1,0 +1,43 @@
+{
+	"name": "media-bubbles-bsky",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"build": "tsc",
+		"dev": "node --env-file=.env --env-file=.env.development --env-file=.env.local ./dist/index.js",
+		"start": "node ./dist/index.js",
+		"format": "prettier --write",
+		"lint": "eslint",
+		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"typecheck": "tsc --noEmit"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"devDependencies": {
+		"@eslint/js": "^9.38.0",
+		"@types/mongodb": "^4.0.6",
+		"@types/node": "^24.9.2",
+		"@types/string-similarity": "^4.0.2",
+		"@typescript-eslint/eslint-plugin": "^8.46.2",
+		"@typescript-eslint/parser": "^8.46.2",
+		"@vitest/coverage-v8": "^4.0.5",
+		"eslint": "^9.38.0",
+		"eslint-config-prettier": "^10.1.8",
+		"globals": "^16.4.0",
+		"msw": "^2.11.6",
+		"prettier": "^3.6.2",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.46.2",
+		"vitest": "^4.0.5"
+	},
+	"dependencies": {
+		"@atproto/api": "^0.17.5",
+		"@skyware/jetstream": "^0.2.5",
+		"mongodb": "^6.20.0",
+		"string-similarity": "^4.0.4"
+	}
+}
