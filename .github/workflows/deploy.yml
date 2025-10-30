@@ -24,41 +24,42 @@ jobs:
       - name: Test
         run: npm run test:coverage
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: us-east-1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-  #     - name: Login to Amazon ECR
-  #       id: login-ecr
-  #       uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-  #     - name: Build and push Docker image to ECR
-  #       env:
-  #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-  #         ECR_REPOSITORY: your-ecr-repo-name
-  #         IMAGE_TAG: ${{ github.sha }}
-  #       run: |
-  #         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-  #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Build and push Docker image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: media-bubbles
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker compose build
+          docker tag media-bubbles-bsky:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-  #     - name: Deploy to EC2
-  #       uses: appleboy/ssh-action@v1.0.0
-  #       with:
-  #         host: ${{ secrets.EC2_HOST }}
-  #         username: ec2-user
-  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
-  #         script: |
-  #           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-  #           docker pull ${{ steps.login-ecr.outputs.registry }}/your-ecr-repo-name:${{ github.sha }}
-  #           docker-compose down || true
-  #           docker rm media-bubbles-bsky || true
-  #           docker-compose up
+      # - name: Deploy to EC2
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ec2-user
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     script: |
+      #       aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+      #       docker pull ${{ steps.login-ecr.outputs.registry }}/media-bubbles:${{ github.sha }}
+      #       docker stop media-bubbles-bsky || true
+      #       docker rm media-bubbles-bsky || true
+      #       docker run -d --name media-bubbles-bsky -p 80:80 ${{ steps.login-ecr.outputs.registry }}/your-ecr-repo-name:${{ github.sha }}
