@@ -78,25 +78,29 @@ const isUniquePost = async (post: BskyArticle) => {
 
 	if (!recentPosts.length) return true;
 
-	const hasUniqueTitle =
-		!post.title ||
-		findBestMatch(
-			post.title,
-			recentPosts.reduce((acc, recent) => {
-				if (recent.title) acc.push(recent.title);
-				return acc;
-			}, [] as string[])
-		).bestMatch.rating < MAX_SIMILARITY_SCORE;
-	const hasUniqueDesc =
-		findBestMatch(
-			post.description,
-			recentPosts.reduce((acc, recent) => {
-				if (recent.description) acc.push(recent.description);
-				return acc;
-			}, [] as string[])
-		).bestMatch.rating < MAX_SIMILARITY_SCORE;
+	const recentTitles: string[] = [];
+	const recentDescs: string[] = [];
 
-	return hasUniqueTitle && hasUniqueDesc;
+	recentPosts.forEach(recent => {
+		if (recent.title) recentTitles.push(recent.title);
+		if (recent.description) recentDescs.push(recent.description);
+	});
+
+	try {
+		const hasUniqueTitle =
+			!post.title ||
+			!recentTitles.length ||
+			findBestMatch(post.title, recentTitles).bestMatch.rating < MAX_SIMILARITY_SCORE;
+		const hasUniqueDesc =
+			!post.description ||
+			!recentDescs.length ||
+			findBestMatch(post.description, recentDescs).bestMatch.rating < MAX_SIMILARITY_SCORE;
+
+		return hasUniqueTitle && hasUniqueDesc;
+	} catch (error) {
+		console.error(error);
+		return true;
+	}
 };
 
 export const insertPost = async (
