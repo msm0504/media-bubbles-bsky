@@ -47,8 +47,7 @@ jobs:
           ECR_REPOSITORY: media-bubbles
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker compose build
-          docker tag docker.io/library/media-bubbles-bsky-media-bubbles-bsky:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Deploy to EC2
