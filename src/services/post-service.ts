@@ -36,7 +36,7 @@ const formatPost = async (
 			sourceName: postSource.name,
 			slant: postSource.slant,
 			title: external.title,
-			description: external.description,
+			description: external.description || record.text,
 			url: external.uri,
 			publishedAt: new Date(event.commit.record.createdAt),
 		};
@@ -90,7 +90,10 @@ const isUniquePost = async (post: BskyArticle) => {
 	const hasUniqueDesc =
 		findBestMatch(
 			post.description,
-			recentPosts.map(({ description }) => description)
+			recentPosts.reduce((acc, recent) => {
+				if (recent.description) acc.push(recent.description);
+				return acc;
+			}, [] as string[])
 		).bestMatch.rating < MAX_SIMILARITY_SCORE;
 
 	return hasUniqueTitle && hasUniqueDesc;
