@@ -62,4 +62,4 @@ jobs:
             docker pull ${{ steps.login-ecr.outputs.registry }}/media-bubbles:${{ github.sha }}
             docker stop media-bubbles-bsky || true
             docker rm media-bubbles-bsky || true
-            docker run -d --name media-bubbles-bsky ${{ steps.login-ecr.outputs.registry }}/your-ecr-repo-name:${{ github.sha }}
+            docker run -d --name media-bubbles-bsky ${{ steps.login-ecr.outputs.registry }}/media-bubbles:${{ github.sha }}
