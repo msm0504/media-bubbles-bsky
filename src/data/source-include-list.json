@@ -10,7 +10,7 @@
 	"CNN": true,
 	"Christian Science Monitor": true,
 	"Daily Caller": true,
-	"The Dispatch": true,
+	"The Dispatch": false,
 	"The Federalist": false,
 	"Forbes": true,
 	"Fox News": true,
@@ -34,7 +34,7 @@
 	"USA TODAY": false,
 	"Vox": true,
 	"Wall Street Journal": true,
-	"Washington Examiner": true,
+	"Washington Examiner": false,
 	"Washington Post": true,
 	"Washington Times": true
 }
