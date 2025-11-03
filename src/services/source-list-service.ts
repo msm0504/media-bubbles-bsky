@@ -48,7 +48,7 @@ const saveSourceLists = async (sourceLists: {
 	sourceListBySlant: Source[][];
 }) => {
 	const db = await _collection;
-	await db.deleteOne();
+	await db.deleteOne({});
 	await db.insertOne(sourceLists);
 };
 
