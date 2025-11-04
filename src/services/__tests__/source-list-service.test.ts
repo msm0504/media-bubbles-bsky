@@ -1,9 +1,7 @@
-import { afterAll, beforeAll, expect, test, vi } from 'vitest';
-import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
+import { beforeAll, expect, test, vi } from 'vitest';
+import allsidesRespMock from '../__mocks__/allsides-resp.json' with { type: 'json' };
 import { getBskyProfile } from '../bsky-profile-service.js';
 import { getBiasRatingBySourceId, getSourceLists } from '../source-list-service.js';
-import allsidesRespMock from '../__mocks__/allsides-resp.json' with { type: 'json' };
 import type { Source } from '../../types.js';
 
 vi.mock('../bsky-profile-service', () => ({
@@ -15,7 +13,7 @@ vi.mock('../../connections/db-connection', () => ({
 		insertOne: vi.fn(),
 	}),
 }));
-const server = setupServer();
+vi.mock('../../data/allsides_pub_data.json', () => ({ default: allsidesRespMock }));
 
 const cnnSourceObj: Source = {
 	id: 'cnn',
@@ -35,10 +33,6 @@ const wsjSourceObj: Source = {
 };
 
 beforeAll(() => {
-	vi.stubEnv(
-		'ALL_SIDES_RATINGS_URL',
-		'https://www.allsides.com/media-bias/json/noncommercial/publications'
-	);
 	vi.mocked(getBskyProfile).mockImplementation((source: string) =>
 		Promise.resolve(
 			source === 'CNN'
@@ -48,15 +42,7 @@ beforeAll(() => {
 					: { did: '', handle: '' }
 		)
 	);
-	server.listen();
-	server.use(
-		http.get('https://www.allsides.com/media-bias/json/noncommercial/publications', () =>
-			HttpResponse.json(allsidesRespMock)
-		)
-	);
 });
-
-afterAll(() => server.close());
 
 test('generates and returns source lists', async () => {
 	const { appSourceList, sourceListBySlant } = await getSourceLists();

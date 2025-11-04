@@ -5,8 +5,8 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "tsc",
-		"dev": "node --env-file=.env --env-file=.env.development --env-file=.env.local ./dist/index.js",
-		"start": "node --env-file=.env --env-file=.env.production ./dist/index.js",
+		"dev": "node --env-file=.env.development --env-file=.env.local ./dist/index.js",
+		"start": "node --env-file=.env.production ./dist/index.js",
 		"format": "prettier --write",
 		"lint": "eslint",
 		"test": "vitest",

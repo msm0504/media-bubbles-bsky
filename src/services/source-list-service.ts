@@ -1,8 +1,9 @@
 import { getBskyProfile } from './bsky-profile-service.js';
-import { type SourceSlant, useBiasRatingsFile } from '../constants.js';
+import { type SourceSlant } from '../constants.js';
 import type { Source } from '../types.js';
 import { getCollection } from '../connections/db-connection.js';
 import SOURCE_INCLUDE_LIST from '../data/source-include-list.json' with { type: 'json' };
+import ALL_SIDES_RATINGS from '../data/allsides_pub_data.json' with { type: 'json' };
 
 type AllSidesRating = {
 	source_name: string;
@@ -16,7 +17,6 @@ type AllSidesPubResponse = { allsides_media_bias_ratings: AllSidesPubRating[] };
 type AllSidesBiasRating = keyof typeof ALL_SIDES_RATINGS_TO_INT;
 type SourceIncludeListKey = keyof typeof SOURCE_INCLUDE_LIST;
 
-const headers = { Accept: 'application/json' };
 const ALL_SIDES_RATINGS_TO_INT = {
 	Left: 0,
 	'Lean Left': 1,
@@ -39,13 +39,6 @@ const resetSourceLists = () => {
 const COLLECTION_NAME = 'source_lists';
 const _collection = getCollection(COLLECTION_NAME);
 
-let biasRatingsFile: Promise<AllSidesPubResponse>;
-if (useBiasRatingsFile) {
-	biasRatingsFile = import('../data/allsides_pub_data.json', { with: { type: 'json' } }).then(
-		module => module.default
-	);
-}
-
 const saveSourceLists = async (sourceLists: {
 	appSourceList: Source[];
 	sourceListBySlant: Source[][];
@@ -55,18 +48,11 @@ const saveSourceLists = async (sourceLists: {
 	await db.insertOne(sourceLists);
 };
 
-const getBiasRatings = async (): Promise<AllSidesPubResponse> => {
-	const requestOptions = { method: 'GET', headers };
-	const response = await fetch('' + process.env.ALL_SIDES_RATINGS_URL, requestOptions);
-	return response.json() as Promise<AllSidesPubResponse>;
-};
-
 const setSourcesAndBiasRatings = async () => {
-	const biasRatingsResponse: AllSidesPubResponse = await (useBiasRatingsFile
-		? biasRatingsFile
-		: getBiasRatings());
 	const biasRatings =
-		biasRatingsResponse?.allsides_media_bias_ratings.map(({ publication }) => publication) || [];
+		(ALL_SIDES_RATINGS as AllSidesPubResponse)?.allsides_media_bias_ratings.map(
+			({ publication }) => publication
+		) || [];
 	biasRatings.forEach(({ source_name, source_url, media_bias_rating }) => {
 		const biasRating = ALL_SIDES_RATINGS_TO_INT[
 			media_bias_rating as AllSidesBiasRating
