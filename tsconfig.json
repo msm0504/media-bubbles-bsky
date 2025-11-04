@@ -41,7 +41,7 @@
 		"moduleDetection": "force",
 		"skipLibCheck": true,
 
-		"typeRoots": ["node_modules/@types", "type-exts"]
+		"typeRoots": ["node_modules/@types"]
 	},
 	"exclude": ["node_modules", "dist", "vitest.config.mts"]
 }

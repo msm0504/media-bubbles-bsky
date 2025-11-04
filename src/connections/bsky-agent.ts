@@ -1,10 +1,10 @@
 import { AtpAgent } from '@atproto/api';
 
-global.bskyPublicAgent = global.bskyPublicAgent || null;
+let bskyPublicAgent: AtpAgent;
 
 export const getBskyPublicAgent = () => {
-	if (!global.bskyPublicAgent) {
-		global.bskyPublicAgent = new AtpAgent({ service: 'https://public.api.bsky.app' });
+	if (!bskyPublicAgent) {
+		bskyPublicAgent = new AtpAgent({ service: 'https://public.api.bsky.app' });
 	}
-	return global.bskyPublicAgent;
+	return bskyPublicAgent;
 };

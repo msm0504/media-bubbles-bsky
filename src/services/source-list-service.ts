@@ -26,11 +26,14 @@ const ALL_SIDES_RATINGS_TO_INT = {
 };
 const CENTER = 2;
 
-global.sources = global.sources || {};
+let appSourceList: Source[] = [];
+let sourceListBySlant: Source[][] = [];
+let sourceBiasRatings: Record<string, SourceSlant> = {};
+
 const resetSourceLists = () => {
-	global.sources.app = [];
-	global.sources.bySlant = [];
-	global.sources.biasRatings = {};
+	appSourceList = [];
+	sourceListBySlant = [];
+	sourceBiasRatings = {};
 };
 
 const COLLECTION_NAME = 'source_lists';
@@ -79,9 +82,9 @@ const setSourcesAndBiasRatings = async () => {
 			return 0;
 
 		const id = modifiedName.toLowerCase().replace(/\s/g, '-');
-		if (!Object.prototype.hasOwnProperty.call(global.sources.biasRatings, id)) {
+		if (!Object.prototype.hasOwnProperty.call(sourceBiasRatings, id)) {
 			const formattedUrl = new URL(source_url).hostname.replace(/www\./, '');
-			global.sources.app.push({
+			appSourceList.push({
 				id,
 				name: modifiedName,
 				url: formattedUrl,
@@ -89,19 +92,19 @@ const setSourcesAndBiasRatings = async () => {
 			});
 		}
 		if (
-			!Object.prototype.hasOwnProperty.call(global.sources.biasRatings, id) ||
-			typeof global.sources.biasRatings[id] === 'undefined' ||
-			Math.abs(biasRating - CENTER) > Math.abs(global.sources.biasRatings[id] - CENTER)
+			!Object.prototype.hasOwnProperty.call(sourceBiasRatings, id) ||
+			typeof sourceBiasRatings[id] === 'undefined' ||
+			Math.abs(biasRating - CENTER) > Math.abs(sourceBiasRatings[id] - CENTER)
 		) {
-			global.sources.biasRatings[id] = biasRating;
-			const prev = global.sources.app.find(source => source.id === id);
+			sourceBiasRatings[id] = biasRating;
+			const prev = appSourceList.find(source => source.id === id);
 			if (prev) {
 				prev.slant = biasRating;
 			}
 		}
 	});
 	await Promise.all(
-		global.sources.app.map(async source => {
+		appSourceList.map(async source => {
 			const profile = await getBskyProfile(source.name, source.url);
 			if (profile?.handle) {
 				source.bskyHandle = profile.handle;
@@ -118,7 +121,7 @@ const populateSourceLists = async () => {
 
 	await setSourcesAndBiasRatings();
 
-	global.sources.app.sort((source1, source2) => {
+	appSourceList.sort((source1, source2) => {
 		const name1 = source1.name.toLowerCase();
 		const name2 = source2.name.toLowerCase();
 
@@ -131,13 +134,13 @@ const populateSourceLists = async () => {
 		return 0;
 	});
 
-	global.sources.app.forEach(source => {
-		const sourceSlant = global.sources.biasRatings[source.id];
+	appSourceList.forEach(source => {
+		const sourceSlant = sourceBiasRatings[source.id];
 		if (typeof sourceSlant !== 'undefined') {
-			if (!global.sources.bySlant[sourceSlant]) {
-				global.sources.bySlant[sourceSlant] = [];
+			if (!sourceListBySlant[sourceSlant]) {
+				sourceListBySlant[sourceSlant] = [];
 			}
-			global.sources.bySlant[sourceSlant].push(source);
+			sourceListBySlant[sourceSlant].push(source);
 		}
 	});
 };
@@ -146,16 +149,13 @@ export const getSourceLists = async (): Promise<{
 	appSourceList: Source[];
 	sourceListBySlant: Source[][];
 }> => {
-	if (!(global.sources.app && global.sources.app.length)) {
+	if (!(appSourceList && appSourceList.length)) {
 		await populateSourceLists();
 	}
-	const sourceLists = {
-		appSourceList: global.sources.app,
-		sourceListBySlant: global.sources.bySlant,
-	};
+	const sourceLists = { appSourceList, sourceListBySlant };
 	await saveSourceLists(sourceLists);
 	return sourceLists;
 };
 
 export const getBiasRatingBySourceId = (sourceId: string): SourceSlant | undefined =>
-	global.sources.biasRatings[sourceId];
+	sourceBiasRatings[sourceId];

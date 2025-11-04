@@ -1,25 +1,20 @@
 import { Collection, Db, MongoClient } from 'mongodb';
 import { MONGODB_URL } from '../constants.js';
 
-global.mongo = global.mongo || { clientPromise: null, db: null };
+let mongo: Db;
 
-export const getMongoClient = async (): Promise<MongoClient> => {
-	if (global.mongo.clientPromise) {
-		return global.mongo.clientPromise;
-	}
-
+const getMongoClient = async (): Promise<MongoClient> => {
 	const client = new MongoClient(MONGODB_URL);
-	global.mongo.clientPromise = client.connect();
-	return global.mongo.clientPromise;
+	return client.connect();
 };
 
 const getDbConnection = async (): Promise<Db> => {
-	if (global.mongo.db) {
-		return global.mongo.db;
+	if (mongo) {
+		return mongo;
 	}
 
-	global.mongo.db = await getMongoClient().then(client => client.db(process.env.MONGODB_DBNAME));
-	return global.mongo.db;
+	mongo = await getMongoClient().then(client => client.db(process.env.MONGODB_DBNAME));
+	return mongo;
 };
 
 export const getCollection = async (collectionName: string): Promise<Collection> => {
