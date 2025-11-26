@@ -9,7 +9,7 @@ vi.mock('../bsky-profile-service', () => ({
 }));
 vi.mock('../../connections/db-connection', () => ({
 	getCollection: () => ({
-		deleteOne: vi.fn(),
+		deleteMany: vi.fn(),
 		insertOne: vi.fn(),
 	}),
 }));
