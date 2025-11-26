@@ -1,40 +1,34 @@
 {
-	"allsides_media_bias_ratings": [
-		{
-			"publication": {
+	"allsides_media_bias_ratings": {
+		"publication": [
+			{
 				"source_name": "CNN (Online News)",
 				"source_type": "News Media",
 				"media_bias_rating": "Left",
 				"source_url": "http://www.cnn.com",
 				"allsides_url": "https://www.allsides.com/news-source/cnn-media-bias"
-			}
-		},
-		{
-			"publication": {
+			},
+			{
 				"source_name": "CNN (Opinion)",
 				"source_type": "News Media",
 				"media_bias_rating": "Left",
 				"source_url": "https://www.cnn.com/opinions",
 				"allsides_url": "https://www.allsides.com/news-source/cnn-editorial"
-			}
-		},
-		{
-			"publication": {
+			},
+			{
 				"source_name": "Wall Street Journal (News)",
 				"source_type": "News Media",
 				"media_bias_rating": "Center",
 				"source_url": "http://online.wsj.com/",
 				"allsides_url": "https://www.allsides.com/news-source/wall-street-journal-media-bias"
-			}
-		},
-		{
-			"publication": {
+			},
+			{
 				"source_name": "Wall Street Journal (Opinion)",
 				"source_type": "News Media",
 				"media_bias_rating": "Lean Right",
 				"source_url": "http://online.wsj.com/public/page/news-opinion-commentary.html",
 				"allsides_url": "https://www.allsides.com/news-source/wall-street-journal-opinion"
 			}
-		}
-	]
+		]
+	}
 }

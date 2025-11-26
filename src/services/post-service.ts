@@ -44,8 +44,10 @@ const formatPost = async (
 		const textWithUrl = record.text.split(URL_REGEX, 2);
 		const text = textWithUrl[0]?.trim() || '';
 		const url = textWithUrl[1]?.startsWith('http')
-			? textWithUrl[1] || ''
-			: `https://${textWithUrl[1]}`;
+			? textWithUrl[1]
+			: textWithUrl[1]
+				? `https://${textWithUrl[1]}`
+				: '';
 		return {
 			_id: event.commit.rkey,
 			sourceId: postSource.id,

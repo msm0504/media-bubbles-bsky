@@ -12,8 +12,8 @@ type AllSidesRating = {
 	source_url: string;
 	allsides_url: string;
 };
-type AllSidesPubRating = { publication: AllSidesRating };
-type AllSidesPubResponse = { allsides_media_bias_ratings: AllSidesPubRating[] };
+type AllSidesPubRating = { publication: AllSidesRating[] };
+type AllSidesPubResponse = { allsides_media_bias_ratings: AllSidesPubRating };
 type AllSidesBiasRating = keyof typeof ALL_SIDES_RATINGS_TO_INT;
 type SourceIncludeListKey = keyof typeof SOURCE_INCLUDE_LIST;
 
@@ -44,15 +44,13 @@ const saveSourceLists = async (sourceLists: {
 	sourceListBySlant: Source[][];
 }) => {
 	const db = await _collection;
-	await db.deleteOne({});
+	await db.deleteMany({});
 	await db.insertOne(sourceLists);
 };
 
 const setSourcesAndBiasRatings = async () => {
 	const biasRatings =
-		(ALL_SIDES_RATINGS as AllSidesPubResponse)?.allsides_media_bias_ratings.map(
-			({ publication }) => publication
-		) || [];
+		(ALL_SIDES_RATINGS as AllSidesPubResponse)?.allsides_media_bias_ratings.publication || [];
 	biasRatings.forEach(({ source_name, source_url, media_bias_rating }) => {
 		const biasRating = ALL_SIDES_RATINGS_TO_INT[
 			media_bias_rating as AllSidesBiasRating
