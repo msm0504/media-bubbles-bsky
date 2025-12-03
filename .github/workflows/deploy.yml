@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - digital-ocean
+      - main
 
 jobs:
   validate:
