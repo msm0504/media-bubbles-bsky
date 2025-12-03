@@ -27,9 +27,9 @@ WORKDIR /app
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/.env.production ./
+COPY --from=builder /app/.env.development ./
 
 # Command to run the application
 # Ensure dotenv is configured in your main application file (e.g., app.ts or index.ts)
 # For example, in app.ts: import 'dotenv/config';
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
