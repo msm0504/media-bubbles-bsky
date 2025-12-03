@@ -55,7 +55,9 @@ jobs:
           username: ${{ secrets.DO_USER }}
           key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
           script: |
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             docker pull ghcr.io/${{ github.repository }}:latest
+            docker logout ghcr.io || true
             docker stop media-bubbles-bsky || true
             docker rm media-bubbles-bsky || true
             docker run -d --name media-bubbles-bsky -e MONGODB_PASSWORD=${{ secrets.MONGODB_PASSWORD }} ghcr.io/${{ github.repository }}:latest
