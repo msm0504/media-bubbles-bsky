@@ -111,11 +111,15 @@ export const insertPost = async (
 	const db = await _collection;
 	const post = await formatPost(event);
 	if (post && (await isUniquePost(post))) {
-		const { insertedId } = await db.insertOne({
-			...post,
-			_id: post._id as unknown as ObjectId,
-		});
-		return { itemId: insertedId.toString() };
+		try {
+			const { insertedId } = await db.insertOne({
+				...post,
+				_id: post._id as unknown as ObjectId,
+			});
+			return { itemId: insertedId.toString() };
+		} catch (error) {
+			console.error(error);
+		}
 	}
 	return {};
 };
@@ -127,11 +131,15 @@ export const updatePost = async (
 	const post = await formatPost(event);
 	if (post) {
 		const { _id, ...rest } = post;
-		const { modifiedCount } = await db.updateOne(
-			{ _id: _id as unknown as ObjectId },
-			{ $set: rest }
-		);
-		return { itemId: modifiedCount === 1 ? _id : '' };
+		try {
+			const { modifiedCount } = await db.updateOne(
+				{ _id: _id as unknown as ObjectId },
+				{ $set: rest }
+			);
+			return { itemId: modifiedCount === 1 ? _id : '' };
+		} catch (error) {
+			console.error(error);
+		}
 	}
 	return {};
 };
@@ -140,6 +148,11 @@ export const deletePost = async (
 	event: CommitDeleteEvent<'app.bsky.feed.post'>
 ): Promise<ItemDeleted> => {
 	const db = await _collection;
-	const { deletedCount } = await db.deleteOne({ _id: event.commit.rkey as unknown as ObjectId });
-	return { itemDeleted: deletedCount === 1 };
+	try {
+		const { deletedCount } = await db.deleteOne({ _id: event.commit.rkey as unknown as ObjectId });
+		return { itemDeleted: deletedCount === 1 };
+	} catch (error) {
+		console.error(error);
+		return { itemDeleted: false };
+	}
 };
