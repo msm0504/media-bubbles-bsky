@@ -1,15 +1,14 @@
 import { ObjectId } from 'mongodb';
 import type { AppBskyEmbedExternal } from '@atproto/api';
 import type { CommitCreateEvent, CommitDeleteEvent, CommitUpdateEvent } from '@skyware/jetstream';
-import { findBestMatch } from 'string-similarity';
 import { getSourceLists } from './source-list-service.js';
 import { SECONDS_IN_WEEK } from '../constants.js';
 import type { BskyArticle, ItemDeleted, ItemSaved } from '../types.js';
 import { getCollection } from '../connections/db-connection.js';
+import { isSimilar } from '../util/string-similarity.js';
 
 const COLLECTION_NAME = 'bsky_posts';
 const BSKY_ARTICLE_TYPE = 'app.bsky.embed.external';
-const MAX_SIMILARITY_SCORE = 0.8;
 // Based on https://www.freecodecamp.org/news/how-to-write-a-regular-expression-for-a-url/
 const URL_REGEX =
 	/((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?\/[a-zA-Z0-9]{2,})/;
@@ -80,25 +79,23 @@ const isUniquePost = async (post: BskyArticle) => {
 
 	if (!recentPosts.length) return true;
 
+	const recentIds: Set<string> = new Set();
 	const recentTitles: string[] = [];
 	const recentDescs: string[] = [];
 
 	recentPosts.forEach(recent => {
+		recentIds.add(recent._id);
 		if (recent.title) recentTitles.push(recent.title);
 		if (recent.description) recentDescs.push(recent.description);
 	});
 
 	try {
 		const hasUniqueTitle =
-			!post.title ||
-			!recentTitles.length ||
-			findBestMatch(post.title, recentTitles).bestMatch.rating < MAX_SIMILARITY_SCORE;
+			!post.title || !recentTitles.length || !isSimilar(post.title, recentTitles);
 		const hasUniqueDesc =
-			!post.description ||
-			!recentDescs.length ||
-			findBestMatch(post.description, recentDescs).bestMatch.rating < MAX_SIMILARITY_SCORE;
+			!post.description || !recentDescs.length || !isSimilar(post.description, recentDescs);
 
-		return hasUniqueTitle && hasUniqueDesc;
+		return !recentIds.has(post._id) && hasUniqueTitle && hasUniqueDesc;
 	} catch (error) {
 		console.error(error);
 		return true;

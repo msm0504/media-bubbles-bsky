@@ -1,0 +1,17 @@
+commit_message="$(git show --no-patch --format=%B HEAD)"
+
+case "$commit_message" in
+  feat!*)
+    npm version major -git-tag-version=false
+    ;;
+  feat*)
+    npm version minor -git-tag-version=false
+    ;;
+  *)
+    npm version patch -git-tag-version=false
+    ;;
+esac
+
+npm install --package-lock-only
+git add package.json package-lock.json
+HUSKY=0 git commit --amend -C HEAD
